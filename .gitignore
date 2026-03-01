@@ -1,0 +1,29 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Large / generated data (regenerate with project scripts)
+data/processed/
+
+# IDE and OS
+.idea/
+.DS_Store
+*.swp
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
