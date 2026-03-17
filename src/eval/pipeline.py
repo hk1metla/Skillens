@@ -14,7 +14,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DATA_PROCESSED = os.path.join(BASE_DIR, "data", "processed")
@@ -67,17 +67,33 @@ def _write_run_manifest(out_dir: str, config_path: str, command_line: list) -> N
         "git_commit": _git_hash(),
         "config_path": os.path.abspath(config_path) if config_path else None,
         "command_line": command_line,
-        "timestamp_utc": datetime.utcnow().isoformat() + "Z",
+        "timestamp_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "python_version": sys.version.split()[0],
     }
     try:
         import pandas as pd
         import numpy as np
         import yaml
-        manifest["packages"] = {
+        import sklearn
+        import scipy
+        packages = {
             "pandas": getattr(pd, "__version__", "?"),
             "numpy": getattr(np, "__version__", "?"),
+            "pyyaml": getattr(yaml, "__version__", "?"),
+            "scikit-learn": getattr(sklearn, "__version__", "?"),
+            "scipy": getattr(scipy, "__version__", "?"),
         }
+        try:
+            import lightgbm as lgb
+            packages["lightgbm"] = getattr(lgb, "__version__", "?")
+        except ImportError:
+            pass
+        try:
+            import streamlit as st
+            packages["streamlit"] = getattr(st, "__version__", "?")
+        except ImportError:
+            pass
+        manifest["packages"] = packages
     except Exception:
         pass
     path = os.path.join(out_dir, "run_manifest.json")

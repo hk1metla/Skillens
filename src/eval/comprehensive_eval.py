@@ -1,16 +1,11 @@
 """
 Comprehensive evaluation harness with all models and metrics.
 
-This replaces the basic run_experiments.py with a full evaluation suite
-including hybrid models, diversity metrics, statistical testing, and slice analysis.
+Evaluates hybrid, content-based, collaborative filtering, and popularity models
+using accuracy, diversity, statistical testing, and demographic fairness analysis.
 
-DUAL-DATASET STRATEGY:
-- OULAD is PRIMARY: All evaluation, metrics, fairness analysis, ablations use OULAD data only
-- Coursera is SECONDARY: Used for demo UI only (screenshots/video with clickable links)
-- All research claims are based exclusively on OULAD data
-
-This aligns with Final_Plan.pdf requirements and addresses preliminary feedback
-by providing real interaction data, demographics, and temporal structure.
+OULAD is the primary dataset for all evaluation. Coursera items are used
+for demo UI only and are excluded from all evaluation metrics.
 """
 
 import argparse
@@ -56,7 +51,7 @@ def _load_items() -> pd.DataFrame:
     Per dual-dataset strategy: OULAD is PRIMARY for all evaluation.
     Coursera items are excluded from evaluation (used for demo UI only).
     """
-    items = pd.read_csv(os.path.join(DATA_DIR, "items.csv"))
+    items = pd.read_csv(os.path.join(DATA_DIR, "items.csv"), dtype={"item_id": str})
     # Filter to OULAD items only (item_id starts with "oulad_")
     oulad_items = items[items["item_id"].str.startswith("oulad_", na=False)]
     if len(oulad_items) == 0:
@@ -72,7 +67,7 @@ def _load_split(name: str) -> pd.DataFrame:
     
     Per dual-dataset strategy: All evaluation uses OULAD data only.
     """
-    split_df = pd.read_csv(os.path.join(DATA_DIR, f"{name}.csv"))
+    split_df = pd.read_csv(os.path.join(DATA_DIR, f"{name}.csv"), dtype={"user_id": str, "item_id": str})
     # Filter to OULAD interactions only (item_id starts with "oulad_")
     oulad_split = split_df[split_df["item_id"].str.startswith("oulad_", na=False)]
     if len(oulad_split) == 0:
@@ -145,7 +140,12 @@ def _evaluate_model_comprehensive(
         "novelty": [],
         "long_tail": [],
     }
-    
+    per_user_keyed = {
+        "precision": {},
+        "recall": {},
+        "ndcg": {},
+    }
+
     all_recommendations = []
     item_lookup = items.set_index("item_id")
     
@@ -231,9 +231,15 @@ def _evaluate_model_comprehensive(
             continue
         
         # Accuracy metrics
-        metrics["precision"].append(precision_at_k(recs, relevant, k))
-        metrics["recall"].append(recall_at_k(recs, relevant, k))
-        metrics["ndcg"].append(ndcg_at_k(recs, relevant, k))
+        p_val = precision_at_k(recs, relevant, k)
+        r_val = recall_at_k(recs, relevant, k)
+        n_val = ndcg_at_k(recs, relevant, k)
+        metrics["precision"].append(p_val)
+        metrics["recall"].append(r_val)
+        metrics["ndcg"].append(n_val)
+        per_user_keyed["precision"][user_id] = p_val
+        per_user_keyed["recall"][user_id] = r_val
+        per_user_keyed["ndcg"][user_id] = n_val
         
         # Diversity metrics
         diversity = intra_list_diversity(recs, item_features, k)
@@ -286,7 +292,7 @@ def _evaluate_model_comprehensive(
     
     # Return per-user metrics if requested (for statistical testing)
     if return_per_user:
-        results["_per_user_metrics"] = metrics
+        results["_per_user_metrics"] = per_user_keyed
     
     return results
 
@@ -466,12 +472,18 @@ def run_comprehensive_eval(config_path: str, out_dir: str = None) -> pd.DataFram
     if not demographics.empty:
         print("\nRunning fairness evaluation with OULAD demographics...")
         from src.eval.fairness import FairnessAuditor
+
+        # Filter demographics to users present in interactions (per PDF E.1)
+        users_in_train = set(train_df["user_id"].astype(str).unique())
+        demographics_filtered = demographics[demographics["user_id"].astype(str).isin(users_in_train)]
+        if len(demographics_filtered) < len(demographics):
+            print(f"  Filtered demographics to {len(demographics_filtered)} users present in train (from {len(demographics)} total)")
         
-        fairness_auditor = FairnessAuditor(items, train_df, demographics)
+        fairness_auditor = FairnessAuditor(items, train_df, demographics_filtered)
         
-        # Get demographic groups
+        # Get demographic groups (only for users in interactions)
         from src.data.load_demographics import get_demographic_groups
-        demo_groups = get_demographic_groups(demographics)
+        demo_groups = get_demographic_groups(demographics_filtered)
         
         # Store models for fairness evaluation
         models_dict = {
@@ -607,16 +619,16 @@ def run_comprehensive_eval(config_path: str, out_dir: str = None) -> pd.DataFram
             
             # For each metric, perform statistical tests
             for metric_name in metrics_to_test:
-                values_a = metrics_a.get(metric_name, [])
-                values_b = metrics_b.get(metric_name, [])
-                
-                # Align lengths (take minimum)
-                min_len = min(len(values_a), len(values_b))
-                if min_len < 2:
+                keyed_a = metrics_a.get(metric_name, {})
+                keyed_b = metrics_b.get(metric_name, {})
+
+                # Align on intersection of user IDs
+                common = sorted(set(keyed_a.keys()) & set(keyed_b.keys()))
+                if len(common) < 2:
                     continue
-                
-                values_a_aligned = values_a[:min_len]
-                values_b_aligned = values_b[:min_len]
+
+                values_a_aligned = [keyed_a[uid] for uid in common]
+                values_b_aligned = [keyed_b[uid] for uid in common]
                 
                 # Paired t-test
                 ttest_result = paired_t_test(values_a_aligned, values_b_aligned, alpha=0.05)
@@ -631,6 +643,7 @@ def run_comprehensive_eval(config_path: str, out_dir: str = None) -> pd.DataFram
                     "model_a": model_a,
                     "model_b": model_b,
                     "metric": metric_name,
+                    "n_paired": len(common),
                     "mean_a": ttest_result["mean_a"],
                     "mean_b": ttest_result["mean_b"],
                     "mean_diff": ttest_result["mean_diff"],

@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-CSV_PATH = os.path.join(BASE_DIR, "results", "ablation_study.csv")
-OUTPUT_PATH = os.path.join(BASE_DIR, "results", "plots", "ablation_study.png")
+CSV_PATH = os.path.join(BASE_DIR, "results", "final", "ablation_study.csv")
+OUTPUT_PATH = os.path.join(BASE_DIR, "results", "final", "plots", "ablation_study_chart.png")
 
 def generate_ablation_plot():
     """Generate bar chart for ablation study results."""

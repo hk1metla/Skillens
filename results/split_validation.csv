@@ -1,2 +1,0 @@
-global_ordering,per_user_ordering,no_future_leakage,train_val_item_overlap,train_test_item_overlap,val_test_item_overlap,val_users_in_train,test_users_in_train,train_size,val_size,test_size,train_ratio,val_ratio,test_ratio,n_cold_start_users,n_new_items
-False,True,True,1.0,1.0,1.0,1.0,1.0,6382979,2130988,2141313,0.5990437604642956,0.19999361818741507,0.2009626213482893,0,0

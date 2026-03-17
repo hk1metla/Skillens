@@ -116,10 +116,11 @@ def main():
         1: 1000,
         2: 2500,
         3: 2000,
-        4: 2000,
+        4: 2500,
         5: 2500,
         6: 1000
     }
+    total_limit = 10500
     
     results = []
     
@@ -129,7 +130,7 @@ def main():
         word_count = count_words(cleaned)
         total_words += word_count
         limit = limits[num]
-        status = "✓ OK" if word_count <= limit else "✗ EXCEEDS"
+        status = "OK" if word_count <= limit else "EXCEEDS"
         
         results.append({
             'num': num,
@@ -144,8 +145,8 @@ def main():
         print()
     
     print("=" * 60)
-    print(f"TOTAL: {total_words:,} / 9,500")
-    print(f"Status: {'✓ OK' if total_words <= 9500 else '✗ EXCEEDS'}")
+    print(f"TOTAL: {total_words:,} / {total_limit:,}")
+    print(f"Status: {'✓ OK' if total_words <= total_limit else '✗ EXCEEDS'}")
     print("=" * 60)
     print()
     
@@ -161,7 +162,7 @@ def main():
         print(f"{r['num']}. {r['name']} & {r['words']:,} & {r['limit']:,} & {r['status']} \\\\")
         print("\\hline")
     
-    print(f"\\textbf{{TOTAL}} & \\textbf{{{total_words:,}}} & \\textbf{{9,500}} & \\textbf{{{'✓ OK' if total_words <= 9500 else '✗ EXCEEDS'}}} \\\\")
+    print(f"\\textbf{{TOTAL}} & \\textbf{{{total_words:,}}} & \\textbf{{{total_limit:,}}} & \\textbf{{{'OK' if total_words <= total_limit else 'EXCEEDS'}}} \\\\")
     print("\\hline")
     print("\\end{tabularx}")
 

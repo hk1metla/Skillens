@@ -1,10 +1,8 @@
 """
-Ablation Study: Prove Component Contributions.
+Ablation study for component contribution analysis.
 
-This demonstrates that each component (content, CF, pedagogical, diversity)
-contributes meaningfully to the final performance.
-
-Required for achieving the target grade.
+Evaluates each recommender component (content, CF, hybrid) independently
+to measure individual contributions to overall performance.
 """
 
 import os

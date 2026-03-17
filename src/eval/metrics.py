@@ -2,7 +2,6 @@
 Comprehensive evaluation metrics for recommender systems.
 
 Includes accuracy, diversity, coverage, novelty, and fairness metrics.
-This comprehensive suite is required for achieving the target grade.
 """
 
 import numpy as np
@@ -28,17 +27,18 @@ def recall_at_k(recommended, relevant, k: int) -> float:
 
 
 def ndcg_at_k(recommended, relevant, k: int) -> float:
-    """Normalized Discounted Cumulative Gain@K."""
-    rec_k = recommended[:k]
-    gains = [1.0 if item in set(relevant) else 0.0 for item in rec_k]
-
-    dcg = np.sum([gain / np.log2(idx + 2) for idx, gain in enumerate(gains)])
-    ideal_gains = sorted(gains, reverse=True)
-    idcg = np.sum([gain / np.log2(idx + 2) for idx, gain in enumerate(ideal_gains)])
-
-    if idcg == 0:
+    """NDCG@K with binary relevance (implicit feedback)."""
+    if k <= 0:
         return 0.0
-    return float(dcg / idcg)
+    rel = set(relevant)
+    if not rel:
+        return 0.0
+    rec_k = recommended[:k]
+    gains = [1.0 if item in rel else 0.0 for item in rec_k]
+    dcg = float(np.sum([g / np.log2(i + 2) for i, g in enumerate(gains)]))
+    ideal_len = min(len(rel), k)
+    idcg = float(np.sum([1.0 / np.log2(i + 2) for i in range(ideal_len)]))
+    return 0.0 if idcg == 0.0 else dcg / idcg
 
 
 def intra_list_diversity(recommended: List[str], item_features: Dict[str, List[float]], k: int) -> float:

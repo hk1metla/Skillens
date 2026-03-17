@@ -55,17 +55,21 @@ class ItemKNNRecommender:
         user_to_idx = {user: idx for idx, user in enumerate(users)}
         
         # Build sparse matrix (users x items)
+        # Aggregate interactions per user-item pair and apply log-transform
+        # to reduce influence of highly active users (Hu et al., 2008)
+        counts = interactions.groupby(["user_id", "item_id"]).size().reset_index(name="click_count")
+
         rows = []
         cols = []
         data = []
-        
-        for _, row in interactions.iterrows():
+
+        for _, row in counts.iterrows():
             user_idx = user_to_idx[row["user_id"]]
             item_idx = self.item_to_idx[row["item_id"]]
             rows.append(user_idx)
             cols.append(item_idx)
-            data.append(1.0)  # Binary implicit feedback
-        
+            data.append(float(np.log1p(row["click_count"])))
+
         self.user_item_matrix = csr_matrix(
             (data, (rows, cols)), shape=(len(users), len(self.item_ids))
         )

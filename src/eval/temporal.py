@@ -1,10 +1,8 @@
 """
-Temporal Evaluation Harness with Leakage Checks (Contribution 3).
+Temporal evaluation harness with leakage checks.
 
-This is an original contribution that ensures evaluation integrity
-through rigorous temporal splitting and leakage detection.
-
-This addresses the originality requirement and evaluation quality.
+Ensures evaluation integrity through rigorous temporal splitting
+and leakage detection. Validates that no test data leaks into training.
 """
 
 import pandas as pd

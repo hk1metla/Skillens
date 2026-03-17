@@ -8,7 +8,7 @@ import pandas as pd
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ITEMS_PATH = os.path.join(BASE_DIR, "data", "processed", "items.csv")
 OUTPUT_PATH = os.path.join(BASE_DIR, "data", "processed", "interactions.csv")
-OULAD_DIR = os.path.join(BASE_DIR, "anonymisedData")
+OULAD_DIR = os.path.join(BASE_DIR, "data", "raw", "oulad")
 
 
 def _build_oulad_interactions() -> pd.DataFrame:
@@ -53,7 +53,8 @@ def _build_oulad_interactions() -> pd.DataFrame:
             base_date + pd.to_timedelta(chunk["date"].astype(int), unit="D")
         ).dt.strftime("%Y-%m-%dT%H:%M:%S")
         chunk = chunk.rename(columns={"id_student": "user_id"})
-        
+        chunk["user_id"] = chunk["user_id"].astype(str)
+
         out = chunk[["user_id", "item_id", "timestamp"]].copy()
         out["event_type"] = "click"
         out.to_csv(

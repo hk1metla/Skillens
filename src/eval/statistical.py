@@ -1,8 +1,8 @@
 """
 Statistical evaluation utilities for recommender systems.
 
-Provides bootstrap confidence intervals and significance testing.
-This is Contribution 3: Temporal Evaluation Harness with Statistical Rigor.
+Provides bootstrap confidence intervals, paired significance tests,
+effect size computation, and multiple comparison correction.
 """
 
 from typing import Dict, List, Tuple

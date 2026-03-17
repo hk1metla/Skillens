@@ -1,11 +1,9 @@
 """
-Pedagogical-Aware Ranking (Contribution 1).
+Pedagogical-aware ranking module.
 
-This is an original contribution that optimizes for learning progression
-rather than just engagement. It models learner skill gaps and reranks
-items to prioritize those teaching unmastered skills.
-
-This addresses the originality requirement (1/6 → 5/6).
+Optimises for learning progression rather than just engagement by modelling
+learner skill gaps and re-ranking items to prioritise those teaching
+unmastered skills.
 """
 
 from typing import Dict, List, Optional, Set

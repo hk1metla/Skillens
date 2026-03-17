@@ -1,8 +1,8 @@
 """
 Load OULAD student demographics for fairness evaluation.
 
-This module loads studentInfo.csv from OULAD dataset to enable
-demographic-based fairness evaluation (Contribution 2).
+Loads studentInfo.csv from the OULAD dataset and provides
+demographic group mappings for per-group evaluation.
 """
 
 import os
@@ -12,7 +12,7 @@ import pandas as pd
 
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-OULAD_DIR = os.path.join(BASE_DIR, "anonymisedData")
+OULAD_DIR = os.path.join(BASE_DIR, "data", "raw", "oulad")
 OUTPUT_PATH = os.path.join(BASE_DIR, "data", "processed", "demographics.csv")
 
 
@@ -52,6 +52,10 @@ def load_demographics() -> pd.DataFrame:
     
     # Handle missing values
     demographics = demographics.fillna("unknown")
+
+    # Deduplicate by user_id (per PDF E.1: "Deduplicate demographics by user id")
+    # Keep first occurrence so we have one row per student
+    demographics = demographics.drop_duplicates(subset=["user_id"], keep="first")
     
     # Save processed demographics
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)

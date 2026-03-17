@@ -1,10 +1,8 @@
 """
 Learning-to-Rank (LTR) using LightGBM LambdaMART.
 
-This is an advanced technique that learns optimal feature combinations
-for ranking, going beyond simple weighted fusion.
-
-This addresses Technical Challenge: 7/8 → 8/8
+Learns optimal feature combinations for ranking using gradient boosted
+decision trees with a lambdarank objective, going beyond fixed-weight fusion.
 """
 
 from typing import Dict, List, Optional

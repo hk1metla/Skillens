@@ -1,10 +1,8 @@
 """
 Semantic Embedding Recommender using Sentence-BERT.
 
-Uses modern NLP techniques (BERT-based embeddings) for better
-semantic understanding than TF-IDF.
-
-This addresses Technical Challenge: 7/8 → 8/8
+Uses BERT-based embeddings for semantic content matching,
+providing denser representations than TF-IDF bag-of-words.
 """
 
 from typing import List, Optional

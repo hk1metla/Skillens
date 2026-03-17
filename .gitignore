@@ -21,6 +21,7 @@ results/final/
 *.swp
 
 # LaTeX
+latex_documentation
 *.aux
 *.log
 *.out
@@ -28,3 +29,12 @@ results/final/
 *.bbl
 *.blg
 *.synctex.gz
+
+# Report PDFs and workspace
+*.pdf
+*.code-workspace
+
+# Raw data (too large for git)
+data/raw/
+anonymisedData/
+"anonymisedData 2/"

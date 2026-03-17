@@ -1,10 +1,8 @@
 """
-Fairness & Diversity Audit (Contribution 2).
+Fairness and diversity audit for recommender evaluation.
 
-This is an original contribution that evaluates and mitigates bias
-in recommendations across demographic groups and item popularity.
-
-This addresses the originality requirement and demonstrates responsible AI.
+Evaluates recommendation bias across demographic groups and item popularity.
+Computes per-group accuracy, coverage, Gini inequality, and demographic parity.
 """
 
 from typing import Dict, List, Optional, Set

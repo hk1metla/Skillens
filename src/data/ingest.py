@@ -4,7 +4,7 @@ import pandas as pd
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 RAW_DATA_PATH = os.path.join(BASE_DIR, "Coursera_courses.csv")
-OULAD_DIR = os.path.join(BASE_DIR, "anonymisedData")
+OULAD_DIR = os.path.join(BASE_DIR, "data", "raw", "oulad")
 OUTPUT_PATH = os.path.join(BASE_DIR, "data", "processed", "items.csv")
 
 # Module code to subject mapping (based on OULAD dataset context)
@@ -50,7 +50,8 @@ def _ingest_oulad() -> pd.DataFrame:
     # Count activity types per module for description
     activity_counts = vle.groupby(["code_module", "code_presentation", "activity_type"]).size().reset_index(name="count")
     activity_summary = activity_counts.groupby(["code_module", "code_presentation"]).apply(
-        lambda x: ", ".join([f"{row['activity_type']} ({row['count']})" for _, row in x.iterrows()])
+        lambda x: ", ".join([f"{row['activity_type']} ({row['count']})" for _, row in x.iterrows()]),
+        include_groups=False,
     ).reset_index(name="activity_summary")
     
     module_items = module_items.merge(activity_summary, on=["code_module", "code_presentation"], how="left")

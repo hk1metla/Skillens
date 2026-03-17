@@ -2,7 +2,7 @@
 Hybrid Recommender System.
 
 Combines Content-Based (TF-IDF) and Collaborative Filtering (ItemKNN) models
-using weighted score fusion. This is a key component for achieving the target grade.
+using weighted score fusion with min-max normalisation.
 """
 
 from typing import List, Optional
